@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>Baraa Robot - طالب عالمي متجذر</title>
+    <style>
+        body {
+            background-color: #0f172a;
+            color: #f8fafc;
+            font-family: 'Cairo', Tahoma, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background: #1e293b;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            width: 700px;
+            text-align: center;
+        }
+        h1 { color: #f59e0b; margin-bottom: 5px; }
+        .slogan { color: #10b981; font-size: 18px; margin-bottom: 20px; font-weight: bold; }
+        textarea {
+            width: 90%;
+            height: 90px;
+            background: #0f172a;
+            color: #fff;
+            border: 2px solid #334155;
+            border-radius: 10px;
+            padding: 12px;
+            font-size: 16px;
+            resize: none;
+            outline: none;
+            text-align: right;
+        }
+        .langs-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin: 20px 0;
+        }
+        button.lang-btn {
+            background: #334155;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+        button.lang-btn:hover, button.lang-btn.active {
+            background: #f59e0b;
+            color: #0f172a;
+        }
+        .play-btn {
+            background: #10b981;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .play-btn:hover { background: #059669; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>🤖 Baraa Robot</h1>
+        <div class="slogan">🌟 المحور السنوي: طالب عالمي متجذر 🌟</div>
+
+        <!-- خانة كتابة النص -->
+        <textarea id="textInput">مرحباً بكم.. أنا برعي، روبوت اتحاد الطلبة.. طالب عالمي متجذر في أرضه!</textarea>
+
+        <!-- أزرار اللغات -->
+        <div class="langs-grid">
+            <button class="lang-btn active" onclick="setLang('ar-EG', 'المصرية', this)">🇪🇬 المصرية</button>
+            <button class="lang-btn" onclick="setLang('ar-SA', 'الصعيدية / العربية', this)">🏜️ الصعيدية</button>
+            <button class="lang-btn" onclick="setLang('ar-XA', 'الفصحى', this)">📖 العربية الفصحى</button>
+            <button class="lang-btn" onclick="setLang('en-US', 'English', this)">🇺🇸 English</button>
+            <button class="lang-btn" onclick="setLang('fr-FR', 'Français', this)">🇫🇷 Français</button>
+            <button class="lang-btn" onclick="setLang('de-DE', 'Deutsch', this)">🇩🇪 Deutsch</button>
+            <button class="lang-btn" onclick="setLang('zh-CN', 'الصينية', this)">🇨🇳 صيني</button>
+            <button class="lang-btn" onclick="setLang('ar-EG', 'المصرية القديمة', this)">🏛️ الهيروغليفي</button>
+        </div>
+
+        <!-- زر التشغيل -->
+        <button class="play-btn" onclick="speakText()">▶ تشغيل صوت برعي</button>
+    </div>
+
+    <script>
+        let selectedLang = 'ar-EG';
+        let synth = window.speechSynthesis;
+        let voices = [];
+
+        function loadVoices() {
+            voices = synth.getVoices();
+        }
+
+        if (synth.onvoiceschanged !== undefined) {
+            synth.onvoiceschanged = loadVoices;
+        }
+        loadVoices();
+
+        function setLang(code, name, btn) {
+            selectedLang = code;
+            document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            const input = document.getElementById('textInput');
+            if(name === 'المصرية') {
+                input.value = "يا هلا بيك يا غالي.. أنا برعي، طالب مصري عالمي متجذر في أرضه!";
+            } else if(name.includes('الصعيدية')) {
+                input.value = "يا مرحب بيكم.. إحنا صعيد الجذور بس عقلنا عالمي وفوق الكل يا غالي!";
+            } else if(name === 'English') {
+                input.value = "Hello! I am Baraa, a global-minded student deeply rooted in his heritage.";
+            } else {
+                input.value = `مرحباً بك.. برعي يتحدث الآن بـ ${name}.`;
+            }
+        }
+
+        function speakText() {
+            const text = document.getElementById('textInput').value;
+            if (synth) {
+                synth.cancel(); 
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = selectedLang;
+                utterance.rate = 0.95; 
+                utterance.pitch = 0.8; 
+
+                voices = synth.getVoices();
+                let maleVoice = voices.find(v => v.lang.includes(selectedLang.slice(0,2)) && (v.name.includes('Male') || v.name.includes('David') || v.name.includes('Rami') || v.name.includes('Naayf') || v.name.includes('Hamed')));
+                if (maleVoice) {
+                    utterance.voice = maleVoice;
+                }
+
+                synth.speak(utterance);
+            } else {
+                alert("متصفحك لا يدعم خاصية الصوت.");
+            }
+        }
+    </script>
+
+</body>
+</html>
